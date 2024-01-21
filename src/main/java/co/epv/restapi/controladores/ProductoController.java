@@ -31,7 +31,7 @@ public class ProductoController {
         List<Producto> productos =  productoService.listado();
         return new ResponseEntity<>(productos, HttpStatus.OK);
     }
-/*
+/* metodo
     @PostMapping("/guardar")
     public ResponseEntity<Producto> guardar(@RequestBody Producto producto){
 
