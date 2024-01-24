@@ -40,4 +40,8 @@ public class ProductoService {
 
         return productoRepository.findById(codigo).get();
     }
+
+    public Producto actualizar(Producto producto){
+        return productoRepository.saveAndFlush(producto);
+    }
 }

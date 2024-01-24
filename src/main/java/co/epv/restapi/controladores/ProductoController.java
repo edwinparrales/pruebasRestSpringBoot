@@ -9,14 +9,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("webapi/producto")
+@RequestMapping("api/producto")
 public class ProductoController {
+    private final Path rootFolder = Paths.get("src/main/resources/static/uploads");
 
     @Autowired
     private ProductoService productoService;
@@ -97,4 +102,36 @@ public class ProductoController {
         }
 
     }
+
+    @PutMapping("/actualizar")
+    public ResponseEntity<Object> actualizar(@RequestBody Producto producto){
+        try{
+            return  ResponseEntity.status(HttpStatus.CREATED)
+                    .body(productoService.actualizar(producto));
+
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al actualizar el producto");
+        }
+
+
+    }
+
+    @PostMapping("/upload")
+
+    public ResponseEntity<Object> uploadFile(@RequestParam("file") MultipartFile file) throws Exception{
+
+       try {
+           String nombre = file.getOriginalFilename();
+           Files.copy(file.getInputStream(),this.rootFolder.resolve(file.getOriginalFilename()));
+           return ResponseEntity.ok("fff"+nombre);
+       }catch (Exception e){
+           new Exception("Error");
+           return ResponseEntity.ok("ddd");
+       }
+
+
+
+    }
+
+
  }
