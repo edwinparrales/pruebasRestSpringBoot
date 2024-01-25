@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -55,14 +56,27 @@ public class ProductoController {
     */
 
     @PostMapping("/guardar")
-    public ResponseEntity<Object> guardar(@RequestBody Producto producto){
-
+    public ResponseEntity<Object> guardar(@RequestBody Producto producto,@RequestParam("files") List<MultipartFile> files) throws Exception{
+        Producto productoNuevo =productoService.guardar(producto);
+        Imagen imagen = new Imagen();
         try{
-            Producto productoNuevo =productoService.guardar(producto);
-            producto.setCodigo(productoNuevo.getCodigo());
-            producto.getImagenesByCodigo().stream().forEach( imagen ->{
-                imagen.setProductosByCodigoProducto(productoNuevo);
+
+
+            files.stream().forEach(doc ->{
+                try {
+                    imagen.setProductosByCodigoProducto(productoNuevo);
+                    imagen.setEstado(1);
+                    imagen.setUrl(this.rootFolder.resolve(doc.getOriginalFilename()).toString());
+                    imagenService.guardar(imagen);
+                    cargarDocumentoServodor(doc);
+
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             });
+
+
+
 
             imagenService.guardarListaImg((List<Imagen>) producto.getImagenesByCodigo());
 
@@ -76,12 +90,6 @@ public class ProductoController {
 
     }
 
-
-    @GetMapping("/hello")
-    ResponseEntity<String> hello() {
-        return new ResponseEntity<>("Hello World!", HttpStatus.OK);
-
-    }
 
     @DeleteMapping("/eliminar/{codigo}")
 
@@ -123,11 +131,28 @@ public class ProductoController {
        try {
            String nombre = file.getOriginalFilename();
            Files.copy(file.getInputStream(),this.rootFolder.resolve(file.getOriginalFilename()));
-           return ResponseEntity.ok("fff"+nombre);
+           return ResponseEntity.ok("Archivo cargado: "+nombre);
        }catch (Exception e){
            new Exception("Error");
            return ResponseEntity.ok("ddd");
        }
+
+
+
+    }
+
+
+
+     private  void cargarDocumentoServodor(MultipartFile file) throws Exception{
+
+        try {
+            String nombre = file.getOriginalFilename();
+            Files.copy(file.getInputStream(),this.rootFolder.resolve(file.getOriginalFilename()));
+
+        }catch (Exception e){
+            new Exception("Error");
+
+        }
 
 
 
