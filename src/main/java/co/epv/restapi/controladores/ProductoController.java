@@ -56,18 +56,22 @@ public class ProductoController {
     */
 
     @PostMapping("/guardar")
-    public ResponseEntity<Object> guardar(@RequestBody Producto producto,@RequestParam("files") List<MultipartFile> files) throws Exception{
+    public ResponseEntity<Object> guardar(@RequestPart("producto") Producto producto,@RequestPart("files") List<MultipartFile> files) throws Exception{
         Producto productoNuevo =productoService.guardar(producto);
-        Imagen imagen = new Imagen();
+
+        List<Imagen> imagenes = new ArrayList<>();
         try{
 
 
             files.stream().forEach(doc ->{
+                Imagen imagen = new Imagen();
                 try {
+
                     imagen.setProductosByCodigoProducto(productoNuevo);
                     imagen.setEstado(1);
                     imagen.setUrl(this.rootFolder.resolve(doc.getOriginalFilename()).toString());
-                    imagenService.guardar(imagen);
+                    imagenes.add(imagen);
+                   // imagenService.guardar(imagen);
                     cargarDocumentoServodor(doc);
 
                 } catch (Exception e) {
@@ -75,10 +79,11 @@ public class ProductoController {
                 }
             });
 
+            System.out.println(imagenes.size());
+
+            imagenService.guardarListaImg(imagenes);
 
 
-
-            imagenService.guardarListaImg((List<Imagen>) producto.getImagenesByCodigo());
 
            return new ResponseEntity<>(productoNuevo,HttpStatus.CREATED);
 
