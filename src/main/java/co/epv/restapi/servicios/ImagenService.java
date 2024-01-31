@@ -24,6 +24,9 @@ public class ImagenService {
 
     public List<Imagen> guardarListaImg(List<Imagen> imagenes){
 
+
+
+
         return imagenRepository.saveAll(imagenes);
     }
 
